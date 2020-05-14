@@ -1,8 +1,7 @@
-numpy
-xxhash
-fasteners
-annoy
-lz4
-h5py
-wheel
-allennlp
+allennlp>=0.9.0
+annoy>=1.16.3
+fasteners>=0.15
+h5py>=2.10.0
+lz4>=3.0.0
+numpy>=1.18.0
+xxhash>=1.4.0
