@@ -22,6 +22,7 @@ from multiprocessing import Process
 
 try:
     import pip._internal.pep425tags as pep425tags
+
     pep425tags.get_supported()
     raise Exception()
 except Exception as e:
@@ -33,11 +34,11 @@ except BaseException:
     from urllib import urlretrieve
 
 
-PACKAGE_NAME = 'pymagnitude'
-PACKAGE_SHORT_NAME = 'magnitude'
+PACKAGE_NAME = "pymagnitude"
+PACKAGE_SHORT_NAME = "magnitude"
 
 DOWNLOAD_REQ_WHEELS = [
-    ('http://download.pytorch.org/whl/cpu/', 'torch', ('0.4.1', '0.4.1.post2')),
+    ("http://download.pytorch.org/whl/cpu/", "torch", ("0.4.1", "0.4.1.post2")),
 ]
 
 
@@ -46,30 +47,33 @@ def install_custom_sqlite3(THIRD_PARTY, INTERNAL):
     Can be safely ignored even if it fails, however, system SQLite
     imitations may prevent large database files with many columns
     from working."""
-    PYSQLITE2 = INTERNAL + '/pysqlite2'
-    APSW = INTERNAL + '/apsw'
-    PYSQLITE = THIRD_PARTY + '/_pysqlite'
-    APSW_TP = THIRD_PARTY + '/_apsw'
+    PYSQLITE2 = INTERNAL + "/pysqlite2"
+    APSW = INTERNAL + "/apsw"
+    PYSQLITE = THIRD_PARTY + "/_pysqlite"
+    APSW_TP = THIRD_PARTY + "/_apsw"
     if built_local():
         return
     print("Installing custom SQLite 3 (pysqlite) ....")
     install_env = os.environ.copy()
-    install_env["PYTHONPATH"] = INTERNAL + \
-        (':' + install_env["PYTHONPATH"] if "PYTHONPATH" in install_env else "")
+    install_env["PYTHONPATH"] = INTERNAL + (
+        ":" + install_env["PYTHONPATH"] if "PYTHONPATH" in install_env else ""
+    )
     shutil.copy(
-        os.path.join(
-            PYSQLITE, 'sqlite3.c'), os.path.join(
-            APSW_TP, 'src', 'sqlite3.c'))
+        os.path.join(PYSQLITE, "sqlite3.c"), os.path.join(APSW_TP, "src", "sqlite3.c")
+    )
     shutil.copy(
-        os.path.join(
-            PYSQLITE, 'sqlite3.h'), os.path.join(
-            APSW_TP, 'src', 'sqlite3.h'))
-    rc = subprocess.Popen([
-        sys.executable,
-        PYSQLITE + '/setup.py',
-        'install',
-        '--install-lib=' + INTERNAL,
-    ], cwd=PYSQLITE, env=install_env).wait()
+        os.path.join(PYSQLITE, "sqlite3.h"), os.path.join(APSW_TP, "src", "sqlite3.h")
+    )
+    rc = subprocess.Popen(
+        [
+            sys.executable,
+            PYSQLITE + "/setup.py",
+            "install",
+            "--install-lib=" + INTERNAL,
+        ],
+        cwd=PYSQLITE,
+        env=install_env,
+    ).wait()
     if rc:
         print("")
         print("============================================================")
@@ -105,12 +109,16 @@ def install_custom_sqlite3(THIRD_PARTY, INTERNAL):
         print("============================================================")
         print("")
     print("Installing custom SQLite 3 (apsw) ....")
-    rc = subprocess.Popen([
-        sys.executable,
-        APSW_TP + '/setup.py',
-        'install',
-        '--install-lib=' + INTERNAL,
-    ], cwd=APSW_TP, env=install_env).wait()
+    rc = subprocess.Popen(
+        [
+            sys.executable,
+            APSW_TP + "/setup.py",
+            "install",
+            "--install-lib=" + INTERNAL,
+        ],
+        cwd=APSW_TP,
+        env=install_env,
+    ).wait()
     if rc:
         print("")
         print("============================================================")
@@ -144,13 +152,13 @@ def install_custom_sqlite3(THIRD_PARTY, INTERNAL):
         print("============================================================")
         print("============================================================")
         print("")
-        if not(os.path.exists(APSW)):
+        if not (os.path.exists(APSW)):
             print("Install-lib did not install APSW, installing from egg...")
             for egg in glob(INTERNAL + "/apsw-*.egg"):
-                if (os.path.isfile(egg)):
+                if os.path.isfile(egg):
                     print("Found an egg file, extracting...")
                     try:
-                        zip_ref = zipfile.ZipFile(egg, 'r')
+                        zip_ref = zipfile.ZipFile(egg, "r")
                     except BaseException:
                         print("Egg extraction error")
                         continue
@@ -160,9 +168,8 @@ def install_custom_sqlite3(THIRD_PARTY, INTERNAL):
                     os.rename(egg, APSW)
                 print("Renaming apsw.py to __init__.py")
                 os.rename(
-                    os.path.join(
-                        APSW, 'apsw.py'), os.path.join(
-                        APSW, '__init__.py'))
+                    os.path.join(APSW, "apsw.py"), os.path.join(APSW, "__init__.py")
+                )
 
 
 def custom_compile(THIRD_PARTY, INTERNAL):
@@ -170,12 +177,7 @@ def custom_compile(THIRD_PARTY, INTERNAL):
 
 
 # Redirect output to a file
-tee = open(
-    os.path.join(
-        tempfile.gettempdir(),
-        PACKAGE_SHORT_NAME +
-        '.install'),
-    'a+')
+tee = open(os.path.join(tempfile.gettempdir(), PACKAGE_SHORT_NAME + ".install"), "a+")
 
 
 class TeeUnbuffered:
@@ -199,44 +201,45 @@ sys.stderr = TeeUnbuffered(sys.stderr)
 
 # Setup path constants
 PROJ_PATH = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
-THIRD_PARTY = PROJ_PATH + '/' + PACKAGE_NAME + '/third_party'
-BUILD_THIRD_PARTY = PROJ_PATH + '/build/lib/' + PACKAGE_NAME + '/third_party'
-INTERNAL = THIRD_PARTY + '/internal'
+THIRD_PARTY = PROJ_PATH + "/" + PACKAGE_NAME + "/third_party"
+BUILD_THIRD_PARTY = PROJ_PATH + "/build/lib/" + PACKAGE_NAME + "/third_party"
+INTERNAL = THIRD_PARTY + "/internal"
 
 # Get the package version
 __version__ = None
-with open(os.path.join(PROJ_PATH, 'version.py')) as f:
+with open(os.path.join(PROJ_PATH, "version.py")) as f:
     exec(f.read())
 
 # Setup remote wheel configurations
-RM_WHEELHOUSE = 'http://s3.amazonaws.com/' + \
-    PACKAGE_SHORT_NAME + '.plasticity.ai/wheelhouse/'
+RM_WHEELHOUSE = (
+    "http://s3.amazonaws.com/" + PACKAGE_SHORT_NAME + ".plasticity.ai/wheelhouse/"
+)
 TRIED_DOWNLOADING_WHEEL = os.path.join(
     tempfile.gettempdir(),
-    PACKAGE_NAME +
-    '-' +
-    __version__ +
-    '-' +
-    hashlib.md5(PROJ_PATH.encode('utf-8')).hexdigest() +
-    '.whldownload'
+    PACKAGE_NAME
+    + "-"
+    + __version__
+    + "-"
+    + hashlib.md5(PROJ_PATH.encode("utf-8")).hexdigest()
+    + ".whldownload",
 )
 INSTALLED_FROM_WHEEL = os.path.join(
     tempfile.gettempdir(),
-    PACKAGE_NAME +
-    '-' +
-    __version__ +
-    '-' +
-    hashlib.md5(PROJ_PATH.encode('utf-8')).hexdigest() +
-    '.whlinstall'
+    PACKAGE_NAME
+    + "-"
+    + __version__
+    + "-"
+    + hashlib.md5(PROJ_PATH.encode("utf-8")).hexdigest()
+    + ".whlinstall",
 )
 BUILT_LOCAL = os.path.join(
     tempfile.gettempdir(),
-    PACKAGE_NAME +
-    '-' +
-    __version__ +
-    '-' +
-    hashlib.md5(PROJ_PATH.encode('utf-8')).hexdigest() +
-    '.buildlocal'
+    PACKAGE_NAME
+    + "-"
+    + __version__
+    + "-"
+    + hashlib.md5(PROJ_PATH.encode("utf-8")).hexdigest()
+    + ".buildlocal",
 )
 
 
@@ -249,31 +252,34 @@ def try_list_dir(d):
 
 def get_supported_wheels(package_name=PACKAGE_NAME, version=__version__):
     """Get supported wheel strings"""
+
     def tuple_invalid(t):
         return (
-            t[1] == 'none' or
-            'fat32' in t[2] or
-            'fat64' in t[2] or
-            '_universal' in t[2]
+            t[1] == "none" or "fat32" in t[2] or "fat64" in t[2] or "_universal" in t[2]
         )
-    return ['-'.join((package_name, version) + t) + '.whl'
-            for t in pep425tags.get_supported() if not(tuple_invalid(t))]
+
+    return [
+        "-".join((package_name, version) + t) + ".whl"
+        for t in pep425tags.get_supported()
+        if not (tuple_invalid(t))
+    ]
 
 
 def install_wheel(whl):
     """Installs a wheel file"""
     whl_args = [
         sys.executable,
-        '-m',
-        'pip',
-        'install',
-        '--ignore-installed',
+        "-m",
+        "pip",
+        "install",
+        "--ignore-installed",
     ]
     rc = subprocess.Popen(whl_args + [whl]).wait()
     if rc != 0:
         try:
             import site
-            if hasattr(site, 'getusersitepackages'):
+
+            if hasattr(site, "getusersitepackages"):
                 site_packages = site.getusersitepackages()
                 print("Installing to user site packages...", site_packages)
                 rc = subprocess.Popen(whl_args + ["--user"] + [whl]).wait()
@@ -322,32 +328,30 @@ def download_and_install_wheel():
         except BaseException:
             print("FAILED")
             continue
-        extract_dir = os.path.join(
-            tempfile.gettempdir(), whl.replace(
-                '.whl', ''))
-        extract_dir = os.path.join(
-            tempfile.gettempdir(), whl.replace(
-                '.whl', ''))
+        extract_dir = os.path.join(tempfile.gettempdir(), whl.replace(".whl", ""))
+        extract_dir = os.path.join(tempfile.gettempdir(), whl.replace(".whl", ""))
         try:
-            zip_ref = zipfile.ZipFile(dl_path, 'r')
+            zip_ref = zipfile.ZipFile(dl_path, "r")
         except BaseException:
             print("FAILED")
             continue
         zip_ref.extractall(extract_dir)
         for ewhl in glob(extract_dir + "/*/req_wheels/*.whl"):
             print("Installing requirement wheel: ", ewhl)
-            package_name = os.path.basename(ewhl).split('-')[0]
-            version = os.path.basename(ewhl).split('-')[1]
+            package_name = os.path.basename(ewhl).split("-")[0]
+            version = os.path.basename(ewhl).split("-")[1]
             requirement = package_name + ">=" + version
             print("Checking if requirement is met: ", requirement)
-            req_rc = subprocess.Popen([
-                sys.executable,
-                '-c',
-                "import importlib;"
-                "import pkg_resources;"
-                "pkg_resources.require('" + requirement + "');"
-                "importlib.import_module('" + package_name + "');"
-            ]).wait()
+            req_rc = subprocess.Popen(
+                [
+                    sys.executable,
+                    "-c",
+                    "import importlib;"
+                    "import pkg_resources;"
+                    "pkg_resources.require('" + requirement + "');"
+                    "importlib.import_module('" + package_name + "');",
+                ]
+            ).wait()
             if req_rc == 0:
                 print("Requirement met...skipping install of: ", package_name)
             else:
@@ -358,10 +362,10 @@ def download_and_install_wheel():
         zip_ref.extractall(PROJ_PATH)
         zip_ref.close()
         if len(exitcodes) > 0 and max(exitcodes) == 0 and min(exitcodes) == 0:
-            open(TRIED_DOWNLOADING_WHEEL, 'w+').close()
+            open(TRIED_DOWNLOADING_WHEEL, "w+").close()
             print("Done downloading and installing wheel")
             return True
-    open(TRIED_DOWNLOADING_WHEEL, 'w+').close()
+    open(TRIED_DOWNLOADING_WHEEL, "w+").close()
     print("Done trying to download and install wheel (it didn't exist)")
     return False
 
@@ -379,15 +383,18 @@ def build_req_wheels():
     print("Building requirements wheels...")
 
     # Get wheels from PyPI
-    rc = subprocess.Popen([
-        sys.executable,
-        '-m',
-        'pip',
-        'wheel',
-        '-r',
-        'requirements.txt',
-        '--wheel-dir=' + PACKAGE_NAME + '/req_wheels'
-    ], cwd=PROJ_PATH).wait()
+    rc = subprocess.Popen(
+        [
+            sys.executable,
+            "-m",
+            "pip",
+            "wheel",
+            "-r",
+            "requirements.txt",
+            "--wheel-dir=" + PACKAGE_NAME + "/req_wheels",
+        ],
+        cwd=PROJ_PATH,
+    ).wait()
 
     # Download wheels
     for wheelhouse, package, versions in DOWNLOAD_REQ_WHEELS:
@@ -397,10 +404,10 @@ def build_req_wheels():
                 exitcodes = []
                 whl_url = wheelhouse + whl
                 sys.stdout.write("Trying to download... '" + whl_url + "'")
-                dl_path = os.path.join(PACKAGE_NAME + '/req_wheels', whl)
+                dl_path = os.path.join(PACKAGE_NAME + "/req_wheels", whl)
                 try:
                     urlretrieve(whl_url, dl_path)
-                    zip_ref = zipfile.ZipFile(dl_path, 'r')
+                    zip_ref = zipfile.ZipFile(dl_path, "r")
                     req_dl_success = True
                     sys.stdout.write(" ...SUCCESS\n")
                 except BaseException:
@@ -411,14 +418,17 @@ def build_req_wheels():
                 sys.stdout.flush()
         # Try to get it from PyPI as last resort
         if not req_dl_success:
-            rc2 = subprocess.Popen([
-                sys.executable,
-                '-m',
-                'pip',
-                'wheel',
-                package,
-                '--wheel-dir=' + PACKAGE_NAME + '/req_wheels'
-            ], cwd=PROJ_PATH).wait()
+            rc2 = subprocess.Popen(
+                [
+                    sys.executable,
+                    "-m",
+                    "pip",
+                    "wheel",
+                    package,
+                    "--wheel-dir=" + PACKAGE_NAME + "/req_wheels",
+                ],
+                cwd=PROJ_PATH,
+            ).wait()
 
     if rc:
         print("Failed to build requirements wheels!")
@@ -428,7 +438,7 @@ def build_req_wheels():
 def install_req_wheels():
     """Installs requirement wheels"""
     print("Installing requirements wheels...")
-    for whl in glob(PACKAGE_NAME + '/req_wheels/*.whl'):
+    for whl in glob(PACKAGE_NAME + "/req_wheels/*.whl"):
         rc = install_wheel(whl)
     print("Done installing requirements wheels")
 
@@ -436,14 +446,10 @@ def install_req_wheels():
 def install_requirements():
     """Installs requirements.txt"""
     print("Installing requirements...")
-    rc = subprocess.Popen([
-        sys.executable,
-        '-m',
-        'pip',
-        'install',
-        '-r',
-        'requirements.txt'
-    ], cwd=PROJ_PATH).wait()
+    rc = subprocess.Popen(
+        [sys.executable, "-m", "pip", "install", "-r", "requirements.txt"],
+        cwd=PROJ_PATH,
+    ).wait()
     if rc:
         print("Failed to install some requirements!")
     print("Done installing requirements")
@@ -455,26 +461,27 @@ def copy_custom_compile():
     ./build/lib/PACKAGE_NAME/third_party/internal/
     for good measure"""
     from distutils.dir_util import copy_tree
+
     try:
         import site
-        cp_from = INTERNAL + '/'
-        if hasattr(site, 'getsitepackages'):
+
+        cp_from = INTERNAL + "/"
+        if hasattr(site, "getsitepackages"):
             site_packages = site.getsitepackages()
         else:
             from distutils.sysconfig import get_python_lib
+
             site_packages = [get_python_lib()]
-        if hasattr(site, 'getusersitepackages'):
+        if hasattr(site, "getusersitepackages"):
             site_packages = site_packages + [site.getusersitepackages()]
         for sitepack in site_packages:
-            for globbed in glob(sitepack + '/' + PACKAGE_NAME + '*/'):
+            for globbed in glob(sitepack + "/" + PACKAGE_NAME + "*/"):
                 try:
-                    cp_to = (globbed + '/' + PACKAGE_NAME +
-                             '/third_party/internal/')
+                    cp_to = globbed + "/" + PACKAGE_NAME + "/third_party/internal/"
                 except IndexError as e:
                     print(
-                        "Site Package: '" +
-                        sitepack +
-                        "' did not have " + PACKAGE_NAME)
+                        "Site Package: '" + sitepack + "' did not have " + PACKAGE_NAME
+                    )
                     continue
                 print("Copying from: ", cp_from, " --> to: ", cp_to)
                 copy_tree(cp_from, cp_to)
@@ -482,8 +489,8 @@ def copy_custom_compile():
         print("Error copying internal pysqlite folder to site packages:")
         traceback.print_exc(e)
     try:
-        cp_from = INTERNAL + '/'
-        cp_to = BUILD_THIRD_PARTY + '/internal/'
+        cp_from = INTERNAL + "/"
+        cp_to = BUILD_THIRD_PARTY + "/internal/"
         print("Copying from: ", cp_from, " --> to: ", cp_to)
         copy_tree(cp_from, cp_to)
     except Exception as e:
@@ -500,8 +507,8 @@ def delete_pip_files():
             from pip._internal.utils.appdirs import user_cache_dir
         except BaseException:
             return
-    for root, dirnames, filenames in os.walk(user_cache_dir('pip/wheels')):
-        for filename in fnmatch.filter(filenames, PACKAGE_NAME + '-*.whl'):
+    for root, dirnames, filenames in os.walk(user_cache_dir("pip/wheels")):
+        for filename in fnmatch.filter(filenames, PACKAGE_NAME + "-*.whl"):
             try:
                 whl = os.path.join(root, filename)
                 print("Deleting...", whl)
@@ -510,17 +517,19 @@ def delete_pip_files():
                 pass
     try:
         import site
-        if hasattr(site, 'getsitepackages'):
+
+        if hasattr(site, "getsitepackages"):
             site_packages = site.getsitepackages()
         else:
             from distutils.sysconfig import get_python_lib
+
             site_packages = [get_python_lib()]
-        if hasattr(site, 'getusersitepackages'):
+        if hasattr(site, "getusersitepackages"):
             site_packages = site_packages + [site.getusersitepackages()]
         for sitepack in site_packages:
-            for globbed in glob(sitepack + '/' + PACKAGE_NAME + '*/'):
+            for globbed in glob(sitepack + "/" + PACKAGE_NAME + "*/"):
                 try:
-                    if globbed.endswith('.dist-info/'):
+                    if globbed.endswith(".dist-info/"):
                         shutil.rmtree(globbed)
                 except BaseException:
                     pass
@@ -535,16 +544,16 @@ try:
 
     class CustomBdistWheelCommand(bdist_wheel_):
         def run(self):
-            if not(download_and_install_wheel()):
+            if not (download_and_install_wheel()):
                 custom_compile(THIRD_PARTY, INTERNAL)
                 build_req_wheels()
-                open(BUILT_LOCAL, 'w+').close()
+                open(BUILT_LOCAL, "w+").close()
             print("Running wheel...")
             bdist_wheel_.run(self)
             print("Done running wheel")
             copy_custom_compile()
 
-    cmdclass['bdist_wheel'] = CustomBdistWheelCommand
+    cmdclass["bdist_wheel"] = CustomBdistWheelCommand
 
 except ImportError as e:
     pass
@@ -552,16 +561,16 @@ except ImportError as e:
 
 class CustomInstallCommand(install):
     def run(self):
-        if not(download_and_install_wheel()):
+        if not (download_and_install_wheel()):
             custom_compile(THIRD_PARTY, INTERNAL)
             install_req_wheels()
-            open(BUILT_LOCAL, 'w+').close()
+            open(BUILT_LOCAL, "w+").close()
         print("Running install...")
         p = Process(target=install.run, args=(self,))
         p.start()
         p.join()
         print("Done running install")
-        if not(download_and_install_wheel()):
+        if not (download_and_install_wheel()):
             print("Running egg_install...")
             p = Process(target=install.do_egg_install, args=(self,))
             p.start()
@@ -578,7 +587,7 @@ class CustomInstallCommand(install):
             self.install_lib = self.install_platlib
 
 
-cmdclass['install'] = CustomInstallCommand
+cmdclass["install"] = CustomInstallCommand
 
 
 class BinaryDistribution(Distribution):
@@ -586,20 +595,20 @@ class BinaryDistribution(Distribution):
         return True
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
     # Attempt to install from a remote pre-compiled wheel
-    if any([a in sys.argv for a in ['egg_info', 'install']]):
+    if any([a in sys.argv for a in ["egg_info", "install"]]):
         if download_and_install_wheel():
-            open(INSTALLED_FROM_WHEEL, 'w+').close()
+            open(INSTALLED_FROM_WHEEL, "w+").close()
 
     # Only create requirements if not installing from a wheel
-    if any([a in sys.argv for a in ['bdist_wheel', 'sdist', 'egg_info']]):
+    if any([a in sys.argv for a in ["bdist_wheel", "sdist", "egg_info"]]):
         # The wheel shouldn't have any reqs
         # since it gets packaged with all of its req wheels
         reqs = []
-    elif not any([a in sys.argv for a in ['-V']]):
-        reqs = parse_requirements('requirements.txt')
+    elif not any([a in sys.argv for a in ["-V"]]):
+        reqs = parse_requirements("requirements.txt")
         for wheelhouse, package, versions in DOWNLOAD_REQ_WHEELS:
             if package not in reqs:
                 reqs.append(package)
@@ -612,12 +621,9 @@ if __name__ == '__main__':
 
     setup(
         name=PACKAGE_NAME,
-        packages=find_packages(
-            exclude=[
-                'tests',
-                'tests.*']),
+        packages=find_packages(exclude=["tests", "tests.*"]),
         version=__version__,
-        description='A fast, efficient universal vector embedding utility package.',
+        description="A fast, efficient universal vector embedding utility package.",
         long_description="""
     About
     -----
@@ -627,46 +633,48 @@ if __name__ == '__main__':
     -------------
     You can see the full documentation and README at the `GitLab repository <https://gitlab.com/Plasticity/magnitude>`_ or the `GitHub repository <https://github.com/plasticityai/magnitude>`_.
         """,
-        author='Plasticity',
-        author_email='opensource@plasticity.ai',
-        url='https://gitlab.com/Plasticity/magnitude',
+        author="Plasticity",
+        author_email="opensource@plasticity.ai",
+        url="https://gitlab.com/Plasticity/magnitude",
         keywords=[
-                    'pymagnitude',
-                    'magnitude',
-                    'plasticity',
-                    'nlp',
-                    'natural',
-                    'language',
-                    'processing',
-                    'word',
-                    'vector',
-                    'embeddings',
-                    'embedding',
-                    'word2vec',
-                    'gensim',
-                    'alternative',
-                    'machine',
-                    'learning',
-                    'annoy',
-                    'index',
-                    'approximate',
-                    'nearest',
-                    'neighbors'],
-        license='MIT',
+            "pymagnitude",
+            "magnitude",
+            "plasticity",
+            "nlp",
+            "natural",
+            "language",
+            "processing",
+            "word",
+            "vector",
+            "embeddings",
+            "embedding",
+            "word2vec",
+            "gensim",
+            "alternative",
+            "machine",
+            "learning",
+            "annoy",
+            "index",
+            "approximate",
+            "nearest",
+            "neighbors",
+        ],
+        license="MIT",
         include_package_data=True,
         install_requires=reqs,
         classifiers=[
             "Development Status :: 5 - Production/Stable",
-            'Intended Audience :: Developers',
+            "Intended Audience :: Developers",
             "Topic :: Software Development :: Libraries :: Python Modules",
-            'Topic :: Scientific/Engineering :: Artificial Intelligence',
-            'Topic :: Text Processing :: Linguistic',
+            "Topic :: Scientific/Engineering :: Artificial Intelligence",
+            "Topic :: Text Processing :: Linguistic",
             "Operating System :: OS Independent",
-            'License :: OSI Approved :: MIT License',
-            'Programming Language :: Python :: 2.7',
-            'Programming Language :: Python :: 3',
-            'Programming Language :: Python :: 3.0',
-            'Programming Language :: Python :: 3.7'],
+            "License :: OSI Approved :: MIT License",
+            "Programming Language :: Python :: 2.7",
+            "Programming Language :: Python :: 3",
+            "Programming Language :: Python :: 3.0",
+            "Programming Language :: Python :: 3.7",
+        ],
         cmdclass=cmdclass,
         distclass=BinaryDistribution,
     )
