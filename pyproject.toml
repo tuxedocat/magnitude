@@ -1,0 +1,23 @@
+[tool]
+[tool.poetry]
+name = "pymagnitude"
+version = "0.1.121.dev"
+description = "A fast, efficient universal vector embedding utility package."
+license = "MIT"
+keywords = ["pymagnitude", "magnitude", "plasticity", "nlp", "natural", "language", "processing", "word", "vector", "embeddings", "embedding", "word2vec", "gensim", "alternative", "machine", "learning", "annoy", "index", "approximate", "nearest", "neighbors"]
+classifiers = ["Development Status :: 5 - Production/Stable", "Intended Audience :: Developers", "Topic :: Software Development :: Libraries :: Python Modules", "Topic :: Scientific/Engineering :: Artificial Intelligence", "Topic :: Text Processing :: Linguistic", "Operating System :: OS Independent", "License :: OSI Approved :: MIT License", "Programming Language :: Python :: 3", "Programming Language :: Python :: 3.6", "Programming Language :: Python :: 3.7", "Programming Language :: Python :: 3.8"]
+homepage = "https://gitlab.com/Plasticity/magnitude"
+authors = ["Plasticity <opensource@plasticity.ai>"]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+annoy = "^1.16"
+numpy = "^1.18"
+fasteners = "^0.15"
+h5py = "^2.10"
+lz4 = "^3.0"
+xxhash = "^1.4"
+allennlp = "^0.9"
+
+[tool.poetry.dev-dependencies]
+wheel = "^0.34.2"

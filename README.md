@@ -38,9 +38,10 @@ A feature-packed Python package and vector storage file format for utilizing vec
 ## Installation
 You can install this package with `pip`:
 ```python
-pip install pymagnitude # Python 2.7
 pip3 install pymagnitude # Python 3
 ```
+
+Note that Python 2.x support is now dropped.
 
 ## Motivation
 Vector space embedding models have become increasingly common in machine learning and traditionally have been popular for natural language processing applications. A fast, lightweight tool to consume these large vector space embedding models efficiently is lacking.
@@ -125,7 +126,7 @@ If needed, and included for convenience, you can also open a `.bin`, `.txt`, `.v
 
 ---------------
 
-* <sup>By default, lazy loading is enabled. You can pass in an optional `lazy_loading` argument to the constructor with the value `-1` to disable lazy-loading and pre-load all vectors into memory (a la Gensim), `0` (default) to enable lazy-loading with an unbounded in-memory LRU cache, or an integer greater than zero `X` to enable lazy-loading with an LRU cache that holds the `X` most recently used vectors in memory.</sup> 
+* <sup>By default, lazy loading is enabled. You can pass in an optional `lazy_loading` argument to the constructor with the value `-1` to disable lazy-loading and pre-load all vectors into memory (a la Gensim), `0` (default) to enable lazy-loading with an unbounded in-memory LRU cache, or an integer greater than zero `X` to enable lazy-loading with an LRU cache that holds the `X` most recently used vectors in memory.</sup>
 * <sup>If you want the data for the `most_similar` functions to be pre-loaded eagerly on initialization, set `eager` to `True`.</sup>
 * <sup>Note, even when `lazy_loading` is set to `-1` or `eager` is set to `True` data will be pre-loaded into memory in a background thread to prevent the constructor from blocking for a few minutes for large models. If you really want blocking behavior, you can pass `True` to the `blocking` argument.</sup>
 * <sup>By default, [unit-length normalized](https://en.wikipedia.org/wiki/Unit_vector) vectors are returned unless you are loading an ELMo model. Set the optional argument `normalized` to `False` if you wish to recieve the raw non-normalized vectors instead.</sup>
@@ -150,14 +151,14 @@ len(vectors)
 
 ---------------
 
-You can query the dimensions of the vectors like so: 
+You can query the dimensions of the vectors like so:
 ```python
 vectors.dim
 ```
 
 ---------------
 
-You can check if a key is in the vocabulary like so: 
+You can check if a key is in the vocabulary like so:
 ```python
 "cat" in vectors
 ```
@@ -172,7 +173,7 @@ for key, vector in vectors:
 
 ---------------
 
-You can query for the vector of a key like so: 
+You can query for the vector of a key like so:
 ```python
 vectors.query("cat")
 ```
@@ -186,7 +187,7 @@ vectors[42]
 
 ---------------
 
-You can query for the vector of multiple keys like so: 
+You can query for the vector of multiple keys like so:
 ```python
 vectors.query(["I", "read", "a", "book"])
 ```
@@ -194,7 +195,7 @@ A 2D array (keys by vectors) will be returned.
 
 ---------------
 
-You can query for the vector of multiple examples like so: 
+You can query for the vector of multiple examples like so:
 ```python
 vectors.query([["I", "read", "a", "book"], ["I", "read", "a", "magazine"]])
 ```
@@ -240,7 +241,7 @@ vectors.doesnt_match(["breakfast", "cereal", "dinner", "lunch"]) # cereal
 
 ---------------
 
-You can query for the most similar (nearest neighbors) keys like so: 
+You can query for the most similar (nearest neighbors) keys like so:
 ```python
 vectors.most_similar("cat", topn = 100) # Most similar by key
 vectors.most_similar(vectors.query("cat"), topn = 100) # Most similar by vector
@@ -249,7 +250,7 @@ Optionally, you can pass a `min_similarity` argument to `most_similar`. Values f
 
 ---------------
 
-You can also query for the most similar keys giving positive and negative examples (which, incidentally, solves analogies) like so: 
+You can also query for the most similar keys giving positive and negative examples (which, incidentally, solves analogies) like so:
 ```python
 vectors.most_similar(positive = ["woman", "king"], negative = ["man"]) # queen
 ```
@@ -263,7 +264,7 @@ vectors.most_similar_cosmul(positive = ["woman", "king"], negative = ["man"]) # 
 
 ---------------
 
-You can also query for the most similar keys using an approximate nearest neighbors index which is much faster, but doesn't guarantee the exact answer: 
+You can also query for the most similar keys using an approximate nearest neighbors index which is much faster, but doesn't guarantee the exact answer:
 ```python
 vectors.most_similar_approx("cat")
 vectors.most_similar_approx(positive = ["woman", "king"], negative = ["man"])
@@ -353,7 +354,7 @@ You can automatically create vectors from additional features you may have such 
 from pymagnitude import *
 pos_vectors = FeaturizerMagnitude(100, namespace = "PartsOfSpeech")
 pos_vectors.dim # 4 - number of dims automatically determined by Magnitude from 100
-pos_vectors.query("NN") # - array([ 0.08040417, -0.71705252,  0.61228951,  0.32322192]) 
+pos_vectors.query("NN") # - array([ 0.08040417, -0.71705252,  0.61228951,  0.32322192])
 pos_vectors.query("JJ") # - array([-0.11681135,  0.10259253,  0.8841201 , -0.44063763])
 pos_vectors.query("NN") # - array([ 0.08040417, -0.71705252,  0.61228951,  0.32322192]) (deterministic hashing so the same value is returned every time for the same key)
 dependency_vectors = FeaturizerMagnitude(100, namespace = "SyntaxDependencies")
@@ -374,10 +375,10 @@ pos_vectors = FeaturizerMagnitude(100, namespace = "PartsOfSpeech")
 dependency_vectors = FeaturizerMagnitude(100, namespace = "SyntaxDependencies")
 vectors = Magnitude(word2vec, pos_vectors, dependency_vectors) # concatenate word2vec with pos and dependencies
 vectors.query([
-    ("I", "PRP", "nsubj"), 
-    ("saw", "VBD", "ROOT"), 
-    ("a", "DT", "det"), 
-    ("cat", "NN", "dobj"), 
+    ("I", "PRP", "nsubj"),
+    ("saw", "VBD", "ROOT"),
+    ("a", "DT", "det"),
+    ("cat", "NN", "dobj"),
     (".",  ".", "punct")
   ]) # array of size 5 x (300 + 4 + 4) or 5 x 308
 
@@ -385,10 +386,10 @@ vectors.query([
 # "Buffalo buffalo Buffalo buffalo buffalo buffalo Buffalo buffalo"
 # (https://en.wikipedia.org/wiki/Buffalo_buffalo_Buffalo_buffalo_buffalo_buffalo_Buffalo_buffalo)
 vectors.query([
-    ("Buffalo", "JJ", "amod"), 
-    ("buffalo", "NNS", "nsubj"), 
-    ("Buffalo", "JJ", "amod"), 
-    ("buffalo", "NNS", "nsubj"), 
+    ("Buffalo", "JJ", "amod"),
+    ("buffalo", "NNS", "nsubj"),
+    ("Buffalo", "JJ", "amod"),
+    ("buffalo", "NNS", "nsubj"),
     ("buffalo",  "VBP", "rcmod"),
     ("buffalo",  "VB", "ROOT"),
     ("Buffalo",  "JJ", "amod"),
@@ -459,9 +460,9 @@ You can convert categorical data with class integers to one-hot NumPy arrays wit
 ```python
   y = [1, 5, 2]
   MagnitudeUtils.to_categorical(y, num_classes = 6) # num_classes is optional
-  # Returns: 
-  # array([[0., 1., 0., 0., 0., 0.] 
-  #       [0., 0., 0., 0., 0., 1.] 
+  # Returns:
+  # array([[0., 1., 0., 0., 0., 0.]
+  #       [0., 0., 0., 0., 0., 1.]
   #       [0., 0., 1., 0., 0., 0.]])
 ```
 
@@ -470,7 +471,7 @@ You can convert from one-hot NumPy arrays back to a 1D NumPy array of class inte
   y_c = [[0., 1., 0., 0., 0., 0.],
          [0., 0., 0., 0., 0., 1.]]
   MagnitudeUtils.from_categorical(y_c)
-  # Returns: 
+  # Returns:
   # array([1., 5.])
 ```
 
@@ -508,8 +509,8 @@ For more control over the remote download domain and local download directory, s
 
 ## Remote Streaming over HTTP
 
-Magnitude models are generally large files (multiple GB) that take up a lot of disk space, even though the `.magnitude` format makes it fast to utilize the vectors. Magnitude has an option to stream these large files over HTTP. 
-This is explicitly different from the [remote loading feature](#remote-loading), in that the model doesn't even need to be downloaded at all. You can begin querying models immediately with no disk space used at all. 
+Magnitude models are generally large files (multiple GB) that take up a lot of disk space, even though the `.magnitude` format makes it fast to utilize the vectors. Magnitude has an option to stream these large files over HTTP.
+This is explicitly different from the [remote loading feature](#remote-loading), in that the model doesn't even need to be downloaded at all. You can begin querying models immediately with no disk space used at all.
 
 
 ```python
