@@ -25,22 +25,13 @@ except ImportError:
     izip = zip
 
 # Import AllenNLP
-sys.path.append(os.path.dirname(__file__) + "/third_party/")
-sys.path.append(os.path.dirname(__file__) + "/third_party_mock/")
-from pymagnitude.third_party.allennlp.commands.elmo import ElmoEmbedder
+import allennlp
+from allennlp.commands.elmo import ElmoEmbedder
 
 # Import SQLite
-try:
-    sys.path.append(os.path.dirname(__file__) + "/third_party/internal/")
-    from pymagnitude.third_party.internal.pysqlite2 import dbapi2 as sqlite3
+import sqlite3
 
-    db = sqlite3.connect(":memory:")
-    db.close()
-    SQLITE_LIB = "internal"
-except BaseException:
-    import sqlite3
-
-    SQLITE_LIB = "system"
+SQLITE_LIB = "system"
 
 
 from pymagnitude.converter_shared import DEFAULT_PRECISION

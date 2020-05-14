@@ -38,7 +38,7 @@ from pymagnitude.converter_shared import char_ngrams
 from pymagnitude.converter_shared import norm_matrix
 from pymagnitude.converter_shared import unroll_elmo
 from pymagnitude.converter_shared import KeyList
-from pymagnitude.third_party.repoze.lru import lru_cache
+from repoze.lru import lru_cache
 
 try:
     from itertools import imap
@@ -75,33 +75,15 @@ except NameError:
     xrange = range
 
 # Import AllenNLP
-sys.path.append(os.path.dirname(__file__) + "/third_party/")
-sys.path.append(os.path.dirname(__file__) + "/third_party_mock/")
-from pymagnitude.third_party.allennlp.commands.elmo import ElmoEmbedder
+from allennlp.commands.elmo import ElmoEmbedder
 
 # Import SQLite
-try:
-    sys.path.append(os.path.dirname(__file__) + "/third_party/")
-    sys.path.append(os.path.dirname(__file__) + "/third_party/internal/")
-    from pymagnitude.third_party.internal.pysqlite2 import dbapi2 as sqlite3
+import sqlite3
 
-    db = sqlite3.connect(":memory:")
-    db.close()
-    _SQLITE_LIB = "internal"
-except Exception:
-    import sqlite3
-
-    _SQLITE_LIB = "system"
+_SQLITE_LIB = "system"
 
 # Import SQLite (APSW)
-try:
-    import pymagnitude.third_party.internal.apsw as apsw
-
-    db = apsw.Connection(":memory:")
-    db.close()
-    _APSW_LIB = "internal"
-except Exception:
-    _APSW_LIB = "none"
+_APSW_LIB = "none"
 
 DEFAULT_LRU_CACHE_SIZE = 1000
 
