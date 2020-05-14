@@ -1,83 +1,20 @@
-from __future__ import print_function
-
-import fnmatch
-import hashlib
-import os
-import shutil
-import sys
-import subprocess
-import traceback
-import tempfile
-import zipfile
-import distutils.sysconfig as dsc
-
-from glob import glob
 from setuptools import find_packages
-from distutils.core import setup
-from setuptools.command.install import install
-from setuptools.command.egg_info import egg_info
-from setuptools import setup, Distribution
-from multiprocessing import Process
-
-
-try:
-    import pip._internal.pep425tags as pep425tags
-
-    pep425tags.get_supported()
-    raise Exception()
-except Exception as e:
-    import pep425tags
-
-try:
-    from urllib.request import urlretrieve
-except BaseException:
-    from urllib import urlretrieve
+from setuptools import setup, find_packages
 
 
 PACKAGE_NAME = "pymagnitude"
 PACKAGE_SHORT_NAME = "magnitude"
 
-# Setup path constants
-PROJ_PATH = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
-# THIRD_PARTY = PROJ_PATH + "/" + PACKAGE_NAME + "/third_party"
-# BUILD_THIRD_PARTY = PROJ_PATH + "/build/lib/" + PACKAGE_NAME + "/third_party"
-# INTERNAL = THIRD_PARTY + "/internal"
 
-# Get the package version
-__version__ = None
-with open(os.path.join(PROJ_PATH, "version.py")) as f:
-    exec(f.read())
-
-
-def parse_requirements(filename):
-    """ load requirements from a pip requirements file """
-    lineiter = (line.strip() for line in open(filename))
-    return [line for line in lineiter if line and not line.startswith("#")]
-
-
-def install_requirements():
-    """Installs requirements.txt"""
-    print("Installing requirements...")
-    rc = subprocess.Popen(
-        [sys.executable, "-m", "pip", "install", "-r", "requirements.txt"],
-        cwd=PROJ_PATH,
-    ).wait()
-    if rc:
-        print("Failed to install some requirements!")
-    print("Done installing requirements")
-
-
-class BinaryDistribution(Distribution):
-    def has_ext_modules(foo):
-        return True
+def _requires_from_file(filename):
+    return open(filename).read().splitlines()
 
 
 if __name__ == "__main__":
-
     setup(
-        name=PACKAGE_NAME,
+        name="pymagnitude",
         packages=find_packages(exclude=["tests", "tests.*"]),
-        version=__version__,
+        version="0.1.21.dev",
         description="A fast, efficient universal vector embedding utility package.",
         long_description="""
     About
@@ -116,7 +53,6 @@ if __name__ == "__main__":
         ],
         license="MIT",
         include_package_data=True,
-        # install_requires=reqs,
         classifiers=[
             "Development Status :: 5 - Production/Stable",
             "Intended Audience :: Developers",
@@ -130,6 +66,6 @@ if __name__ == "__main__":
             "Programming Language :: Python :: 3.7",
             "Programming Language :: Python :: 3.8",
         ],
-        # cmdclass=cmdclass,
-        distclass=BinaryDistribution,
+        install_requires=_requires_from_file("requirements.txt"),
+        zip_safe=False,
     )
