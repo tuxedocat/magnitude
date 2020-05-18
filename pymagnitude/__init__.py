@@ -29,7 +29,6 @@ from fasteners import InterProcessLock
 from itertools import cycle, islice, chain, product, tee
 from numbers import Number
 from time import sleep
-from functools import lru_cache
 
 from pymagnitude.converter_shared import DEFAULT_NGRAM_END
 from pymagnitude.converter_shared import BOW, EOW
@@ -39,6 +38,7 @@ from pymagnitude.converter_shared import char_ngrams
 from pymagnitude.converter_shared import norm_matrix
 from pymagnitude.converter_shared import unroll_elmo
 from pymagnitude.converter_shared import KeyList
+from pymagnitude.third_party.repoze.lru import lru_cache
 
 try:
     from itertools import imap
@@ -693,15 +693,15 @@ class Magnitude(object):
         # Create cached methods
         if self.lazy_loading <= 0:
 
-            @lru_cache(maxsize=DEFAULT_LRU_CACHE_SIZE)
+            @lru_cache(None, real_func=self._vector_for_key, remove_self=True)
             def _vector_for_key_cached(*args, **kwargs):
                 return self._vector_for_key(*args, **kwargs)
 
-            @lru_cache(maxsize=DEFAULT_LRU_CACHE_SIZE)
+            @lru_cache(None, real_func=self._out_of_vocab_vector, remove_self=True)
             def _out_of_vocab_vector_cached(*args, **kwargs):
                 return self._out_of_vocab_vector(*args, **kwargs)
 
-            @lru_cache(maxsize=DEFAULT_LRU_CACHE_SIZE)
+            @lru_cache(None, real_func=self._key_for_index, remove_self=True)
             def _key_for_index_cached(*args, **kwargs):
                 return self._key_for_index(*args, **kwargs)
 
@@ -718,15 +718,21 @@ class Magnitude(object):
                     preload_thread.start()
         elif self.lazy_loading > 0:
 
-            @lru_cache(maxsize=DEFAULT_LRU_CACHE_SIZE)
+            @lru_cache(
+                self.lazy_loading, real_func=self._vector_for_key, remove_self=True
+            )
             def _vector_for_key_cached(*args, **kwargs):
                 return self._vector_for_key(*args, **kwargs)
 
-            @lru_cache(maxsize=DEFAULT_LRU_CACHE_SIZE)
+            @lru_cache(
+                self.lazy_loading, real_func=self._out_of_vocab_vector, remove_self=True
+            )
             def _out_of_vocab_vector_cached(*args, **kwargs):
                 return self._out_of_vocab_vector(*args, **kwargs)
 
-            @lru_cache(maxsize=DEFAULT_LRU_CACHE_SIZE)
+            @lru_cache(
+                self.lazy_loading, real_func=self._key_for_index, remove_self=True
+            )
             def _key_for_index_cached(*args, **kwargs):
                 return self._key_for_index(*args, **kwargs)
 
@@ -1509,7 +1515,7 @@ class Magnitude(object):
         ]
         return keys
 
-    @lru_cache(maxsize=DEFAULT_LRU_CACHE_SIZE)
+    @lru_cache(DEFAULT_LRU_CACHE_SIZE, ignore_unhashable_args=True)
     def query(
         self, q, pad_to_length=None, pad_left=None, truncate_left=None, normalized=None
     ):
@@ -1591,7 +1597,7 @@ class Magnitude(object):
         else:
             return self._key_for_index_cached(q, return_vector=return_vector)
 
-    @lru_cache(maxsize=DEFAULT_LRU_CACHE_SIZE)
+    @lru_cache(DEFAULT_LRU_CACHE_SIZE, ignore_unhashable_args=True)
     def _query_numpy(self, key, contextualize=False, normalized=None):
         """Returns the query for a key, forcibly converting the
         resulting vector to a numpy array.
@@ -1638,7 +1644,7 @@ class Magnitude(object):
             is not None
         )  # noqa
 
-    @lru_cache(maxsize=DEFAULT_LRU_CACHE_SIZE)
+    @lru_cache(DEFAULT_LRU_CACHE_SIZE, ignore_unhashable_args=True)
     def distance(self, key, q):
         """Calculates the distance from key to the key(s) in q."""
         a = self._query_numpy(key, normalized=self.normalized)
@@ -1653,7 +1659,7 @@ class Magnitude(object):
                 )
             ]
 
-    @lru_cache(maxsize=DEFAULT_LRU_CACHE_SIZE)
+    @lru_cache(DEFAULT_LRU_CACHE_SIZE, ignore_unhashable_args=True)
     def similarity(self, key, q):
         """Calculates the similarity from key to the key(s) in q."""
         a = self._query_numpy(key, normalized=True)
@@ -1666,14 +1672,14 @@ class Magnitude(object):
                 for b in self._query_numpy(q, contextualize=True, normalized=True)
             ]
 
-    @lru_cache(maxsize=DEFAULT_LRU_CACHE_SIZE)
+    @lru_cache(DEFAULT_LRU_CACHE_SIZE, ignore_unhashable_args=True)
     def most_similar_to_given(self, key, q):
         """Calculates the most similar key in q to key."""
         similarities = self.similarity(key, q)
         min_index, _ = max(enumerate(similarities), key=operator.itemgetter(1))
         return q[min_index]
 
-    @lru_cache(maxsize=DEFAULT_LRU_CACHE_SIZE)
+    @lru_cache(DEFAULT_LRU_CACHE_SIZE, ignore_unhashable_args=True)
     def doesnt_match(self, q):
         """Given a set of keys, figures out which key doesn't
         match the rest.
@@ -1835,7 +1841,7 @@ class Magnitude(object):
             )
         )
 
-    @lru_cache(maxsize=DEFAULT_LRU_CACHE_SIZE)
+    @lru_cache(DEFAULT_LRU_CACHE_SIZE, ignore_unhashable_args=True)
     def most_similar(
         self,
         positive,
@@ -1859,7 +1865,7 @@ class Magnitude(object):
             method="distance",
         )
 
-    @lru_cache(maxsize=DEFAULT_LRU_CACHE_SIZE)
+    @lru_cache(DEFAULT_LRU_CACHE_SIZE, ignore_unhashable_args=True)
     def most_similar_cosmul(
         self,
         positive,
@@ -1886,7 +1892,7 @@ class Magnitude(object):
         )
         return results
 
-    @lru_cache(maxsize=DEFAULT_LRU_CACHE_SIZE)
+    @lru_cache(DEFAULT_LRU_CACHE_SIZE, ignore_unhashable_args=True)
     def most_similar_approx(
         self,
         positive,
@@ -1926,7 +1932,7 @@ build the appropriate indexes into the `.magnitude` file."
         )
         return results
 
-    @lru_cache(maxsize=DEFAULT_LRU_CACHE_SIZE)
+    @lru_cache(DEFAULT_LRU_CACHE_SIZE, ignore_unhashable_args=True)
     def closer_than(self, key, q, topn=None):
         """Finds all keys closer to key than q is to key."""
         epsilon = 10.0 / 10 ** 6
@@ -2427,7 +2433,7 @@ class ConcatenatedMagnitude(object):
                 for example in xrange(len(l[0]))
             ]  # noqa
 
-    @lru_cache(maxsize=DEFAULT_LRU_CACHE_SIZE)
+    @lru_cache(DEFAULT_LRU_CACHE_SIZE, ignore_unhashable_args=True)
     def query(
         self, q, pad_to_length=None, pad_left=None, truncate_left=None, normalized=None
     ):
